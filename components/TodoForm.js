@@ -4,9 +4,15 @@ function TodoForm(props) {
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [newTodoDescription, setNewTodoDescription] = useState('');
   const [assignedUser, setAssignedUser] = useState('');
+  const [errors, setErrors] = useState([]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    const errors = validate();
+    if (errors.length > 0) {
+      setErrors(errors);
+      return;
+    }
     const newTodo = {
       id: Math.random(),
       title: newTodoTitle,
@@ -18,10 +24,32 @@ function TodoForm(props) {
     setNewTodoTitle('');
     setNewTodoDescription('');
     setAssignedUser('');
+    setErrors([]);
+  };
+
+  const validate = () => {
+    const errors = [];
+    if (!newTodoTitle.trim()) {
+      errors.push('Title is required.');
+    }
+    if (!newTodoDescription.trim()) {
+      errors.push('Description is required.');
+    }
+    if (!assignedUser.trim()) {
+      errors.push('Assignee is required.');
+    }
+    return errors;
   };
 
   return (
     <form onSubmit={handleSubmit}>
+      {errors.length > 0 && (
+        <ul className="error-list">
+          {errors.map((error) => (
+            <li key={error}>{error}</li>
+          ))}
+        </ul>
+      )}
       <label htmlFor="title">New task:</label>
       <input
         type="text"
