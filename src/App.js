@@ -1,40 +1,106 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
-import Todos from './components/todos';
-import Navbar from './components/Navbar';
-import Modal from './components/Modal';
 
-class App extends Component {
-  state = {
-    todos: [
-      { id: 1, title: 'Buy milk' },
-      { id: 2, title: 'Walk the dog' },
-      { id: 3, title: 'Do laundry' }
-    ],
-    showModal: false
+function App() {
+  const [todos, setTodos] = useState([]);
+  const [users, setUsers] = useState([
+    { id: 1, name: 'Jesper' },
+    { id: 2, name: 'Tom' },
+    { id: 3, name: 'Jaber' },
+  ]);
+  const [newTodoTitle, setNewTodoTitle] = useState('');
+  const [newTodoDescription, setNewTodoDescription] = useState('');
+  const [assignedUser, setAssignedUser] = useState('');
+
+  // Load the existing to-do list from local storage, if any
+  useEffect(() => {
+    const storedTodos = JSON.parse(localStorage.getItem('todos'));
+    if (storedTodos) {
+      setTodos(storedTodos);
+    }
+  }, []);
+
+  // Function to add a new to-do item to the list
+  const handleAddTodo = (event) => {
+    event.preventDefault();
+    const newTodo = {
+      id: Math.random(),
+      title: newTodoTitle,
+      description: newTodoDescription,
+      completed: false,
+      assignedTo: assignedUser,
+    };
+    setTodos([...todos, newTodo]);
+    setNewTodoTitle('');
+    setNewTodoDescription('');
+    setAssignedUser('');
   };
 
-  toggleModal = () => {
-    this.setState({ showModal: !this.state.showModal });
+  // Function to remove a to-do item from the list
+  const handleRemoveTodo = (todoId) => {
+    setTodos(todos.filter((todo) => todo.id !== todoId));
   };
 
-  deleteTodoItem = id => {
-    const todos = this.state.todos.filter(todo => todo.id !== id);
-    this.setState({ todos });
-  };
+  // Save the to-do list to local storage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('todos', JSON.stringify(todos));
+  }, [todos]);
 
-  render() {
-    return (
-      <div className='App'>
-        <Navbar />
-        <button onClick={this.toggleModal}>Open Modal</button>
-        <Modal showModal={this.state.showModal} onClose={this.toggleModal}>
-          This is a modal
-        </Modal>
-        <Todos todos={this.state.todos} deleteTodoItem={this.deleteTodoItem} />
-      </div>
-    );
-  }
+  return (
+    <div className="App">
+      <h1>To-Do List</h1>
+
+      {/* Form to add a new to-do item */}
+      <form onSubmit={handleAddTodo}>
+        <label htmlFor="title">New task:</label>
+        <input
+          type="text"
+          name="title"
+          value={newTodoTitle}
+          onChange={(event) => setNewTodoTitle(event.target.value)}
+          required
+        />
+
+        <label htmlFor="description">Description:</label>
+        <input
+          type="text"
+          name="description"
+          value={newTodoDescription}
+          onChange={(event) => setNewTodoDescription(event.target.value)}
+          required
+        />
+
+        <label htmlFor="user">Assign to:</label>
+        <select
+          name="user"
+          value={assignedUser}
+          onChange={(event) => setAssignedUser(event.target.value)}
+          required
+        >
+          <option value="">Select a user</option>
+          {users.map((user) => (
+            <option key={user.id} value={user.name}>
+              {user.name}
+            </option>
+          ))}
+        </select>
+
+        <button type="submit">Add</button>
+      </form>
+
+      {/* List of to-do items */}
+      <ul>
+        {todos.map((todo) => (
+          <li key={todo.id}>
+            <span>{todo.title}</span>
+            <span>Description: {todo.description}</span>
+            <span>Assigned to: {todo.assignedTo}</span>
+            <button onClick={() => handleRemoveTodo(todo.id)}>Remove</button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 export default App;
