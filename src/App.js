@@ -1,80 +1,63 @@
-import React, { useState } from 'react';
-import './App.css';
-import UserSelect from './components/UserSelect';
-import TodoList from './components/TodoList';
-import TodoForm from './components/TodoForm';
-import Navbar from './components/Navbar';
-import Modal from './components/Modal';
+import React, { useState } from "react";
+import "./App.css";
+import Todos from "./components/todos";
+import AddTodo from "./components/AddTodo";
+import Navbar from "./components/Navbar";
+import Modal from "./components/Modal";
 
 function App() {
-  const [todos, setTodos] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [todos, setTodos] = useState([
+    { id: 1, title: "Learn React", completed: false },
+    { id: 2, title: "Learn Redux", completed: false },
+    { id: 3, title: "Build a project", completed: false }
+  ]);
+
   const [showModal, setShowModal] = useState(false);
 
-  const handleAddTodo = (todo) => {
-    setTodos([...todos, todo]);
+  const addTodo = title => {
+    const newTodo = {
+      id: todos.length + 1,
+      title: title,
+      completed: false
+    };
+    setTodos([...todos, newTodo]);
   };
 
-  const handleDeleteTodo = (todoIndex) => {
-    const newTodos = todos.filter((todo, index) => index !== todoIndex);
-    setTodos(newTodos);
+  const deleteTodo = id => {
+    setTodos(todos.filter(todo => todo.id !== id));
   };
 
-  const handleCompleteTodo = (todoIndex) => {
-    const newTodos = [...todos];
-    newTodos[todoIndex].completed = true;
-    setTodos(newTodos);
+  const toggleComplete = id => {
+    setTodos(
+      todos.map(todo => {
+        if (todo.id === id) {
+          todo.completed = !todo.completed;
+        }
+        return todo;
+      })
+    );
   };
 
-  const handleEditTodo = (todoIndex, todoText) => {
-    const newTodos = [...todos];
-    newTodos[todoIndex].text = todoText;
-    setTodos(newTodos);
-  };
-
-  const handleAddUser = (user) => {
-    setUsers([...users, user]);
-  };
-
-  const handleUserSelect = (user) => {
-    setSelectedUser(user);
-  };
-
-  const handleShowModal = () => {
+  const showModalHandler = () => {
     setShowModal(true);
   };
 
-  const handleHideModal = () => {
+  const closeModalHandler = () => {
     setShowModal(false);
   };
 
   return (
     <div className="App">
-      <Navbar handleShowModal={handleShowModal} />
-      <UserSelect
-        users={users}
-        handleAddUser={handleAddUser}
-        handleUserSelect={handleUserSelect}
-      />
-      {selectedUser && (
-        <TodoForm
-          handleAddTodo={handleAddTodo}
-          selectedUser={selectedUser}
-          users={users}
-        />
-      )}
-      <TodoList
-        todos={todos}
-        handleDeleteTodo={handleDeleteTodo}
-        handleCompleteTodo={handleCompleteTodo}
-        handleEditTodo={handleEditTodo}
-      />
-      <Modal
-        showModal={showModal}
-        handleHideModal={handleHideModal}
-        handleAddUser={handleAddUser}
-      />
+      <Navbar />
+      <div className="container">
+        <Modal show={showModal} close={closeModalHandler}>
+          <AddTodo addTodo={addTodo} closeModal={closeModalHandler} />
+        </Modal>
+        <Todos todos={todos} toggleComplete={toggleComplete} deleteTodo={deleteTodo} />
+        <button className="btn btn-primary btn-block" onClick={showModalHandler}>
+          Add Todo
+        </button>
+      </div>
     </div>
   );
 }
