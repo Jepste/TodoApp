@@ -1,63 +1,52 @@
-import React, { useState } from "react";
-import "./App.css";
-import Todos from "./components/todos";
-import AddTodo from "./components/AddTodo";
+import React, { useState, useEffect } from "react";
 import Navbar from "./components/Navbar";
-import Modal from "./components/Modal";
+import TodoForm from "./components/TodoForm";
+import TodoList from "./components/TodoList";
+import "./App.css";
+
+const LOCAL_STORAGE_KEY = "react-todo-list-todos";
 
 function App() {
-  const [todos, setTodos] = useState([
-    { id: 1, title: "Learn React", completed: false },
-    { id: 2, title: "Learn Redux", completed: false },
-    { id: 3, title: "Build a project", completed: false }
-  ]);
+  const [todos, setTodos] = useState([]);
 
-  const [showModal, setShowModal] = useState(false);
+  useEffect(() => {
+    const storageTodos = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
+    if (storageTodos) {
+      setTodos(storageTodos);
+    }
+  }, []);
 
-  const addTodo = title => {
-    const newTodo = {
-      id: todos.length + 1,
-      title: title,
-      completed: false
-    };
-    setTodos([...todos, newTodo]);
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(todos));
+  }, [todos]);
+
+  const addTodo = (todo) => {
+    setTodos([todo, ...todos]);
   };
 
-  const deleteTodo = id => {
-    setTodos(todos.filter(todo => todo.id !== id));
-  };
-
-  const toggleComplete = id => {
+  const toggleComplete = (id) => {
     setTodos(
-      todos.map(todo => {
+      todos.map((todo) => {
         if (todo.id === id) {
-          todo.completed = !todo.completed;
+          return {
+            ...todo,
+            completed: !todo.completed,
+          };
         }
         return todo;
       })
     );
   };
 
-  const showModalHandler = () => {
-    setShowModal(true);
-  };
-
-  const closeModalHandler = () => {
-    setShowModal(false);
+  const deleteTodo = (id) => {
+    setTodos(todos.filter((todo) => todo.id !== id));
   };
 
   return (
-    <div className="App">
+    <div className="app">
       <Navbar />
-      <div className="container">
-        <Modal show={showModal} close={closeModalHandler}>
-          <AddTodo addTodo={addTodo} closeModal={closeModalHandler} />
-        </Modal>
-        <Todos todos={todos} toggleComplete={toggleComplete} deleteTodo={deleteTodo} />
-        <button className="btn btn-primary btn-block" onClick={showModalHandler}>
-          Add Todo
-        </button>
-      </div>
+      <TodoForm addTodo={addTodo} />
+      <TodoList todos={todos} toggleComplete={toggleComplete} deleteTodo={deleteTodo} />
     </div>
   );
 }

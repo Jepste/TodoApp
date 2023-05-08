@@ -1,15 +1,34 @@
-import React from "react";
+import React from 'react';
 
-const TodoItem = ({ todo, completeTodo, removeTodo }) => {
-  const { id, text, description, user, completed } = todo;
+const TodoItem = ({ text, todo, todos, setTodos }) => {
+  // Events
+  const deleteHandler = () => {
+    setTodos(todos.filter((el) => el.id !== todo.id));
+  };
+
+  const completeHandler = () => {
+    setTodos(
+      todos.map((item) => {
+        if (item.id === todo.id) {
+          return {
+            ...item,
+            completed: !item.completed,
+          };
+        }
+        return item;
+      })
+    );
+  };
 
   return (
-    <div className={`todo ${completed ? "completed" : ""}`}>
-      <h3>{text}</h3>
-      {description && <p>{description}</p>}
-      <p>Assigned to: {user}</p>
-      <button onClick={() => completeTodo(id)}>Complete</button>
-      <button onClick={() => removeTodo(id)}>Delete</button>
+    <div className={`todo-item ${todo.completed ? 'completed' : ''}`}>
+      <li className="todo-list-item">{text}</li>
+      <button onClick={completeHandler} className="complete-btn">
+        <i className="fas fa-check"></i>
+      </button>
+      <button onClick={deleteHandler} className="trash-btn">
+        <i className="fas fa-trash"></i>
+      </button>
     </div>
   );
 };
