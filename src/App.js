@@ -1,54 +1,40 @@
-import React, { useState, useEffect } from "react";
-import Navbar from "./components/Navbar";
-import TodoForm from "./components/TodoForm";
-import TodoList from "./components/TodoList";
-import "./App.css";
+import React, { Component } from 'react';
+import './App.css';
+import Todos from './components/todos';
+import Navbar from './components/Navbar';
+import Modal from './components/Modal';
 
-const LOCAL_STORAGE_KEY = "react-todo-list-todos";
-
-function App() {
-  const [todos, setTodos] = useState([]);
-
-  useEffect(() => {
-    const storageTodos = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
-    if (storageTodos) {
-      setTodos(storageTodos);
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(todos));
-  }, [todos]);
-
-  const addTodo = (todo) => {
-    setTodos([todo, ...todos]);
+class App extends Component {
+  state = {
+    todos: [
+      { id: 1, title: 'Buy milk' },
+      { id: 2, title: 'Walk the dog' },
+      { id: 3, title: 'Do laundry' }
+    ],
+    showModal: false
   };
 
-  const toggleComplete = (id) => {
-    setTodos(
-      todos.map((todo) => {
-        if (todo.id === id) {
-          return {
-            ...todo,
-            completed: !todo.completed,
-          };
-        }
-        return todo;
-      })
+  toggleModal = () => {
+    this.setState({ showModal: !this.state.showModal });
+  };
+
+  deleteTodoItem = id => {
+    const todos = this.state.todos.filter(todo => todo.id !== id);
+    this.setState({ todos });
+  };
+
+  render() {
+    return (
+      <div className='App'>
+        <Navbar />
+        <button onClick={this.toggleModal}>Open Modal</button>
+        <Modal showModal={this.state.showModal} onClose={this.toggleModal}>
+          This is a modal
+        </Modal>
+        <Todos todos={this.state.todos} deleteTodoItem={this.deleteTodoItem} />
+      </div>
     );
-  };
-
-  const deleteTodo = (id) => {
-    setTodos(todos.filter((todo) => todo.id !== id));
-  };
-
-  return (
-    <div className="app">
-      <Navbar />
-      <TodoForm addTodo={addTodo} />
-      <TodoList todos={todos} toggleComplete={toggleComplete} deleteTodo={deleteTodo} />
-    </div>
-  );
+  }
 }
 
 export default App;
