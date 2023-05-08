@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Navbar, Nav } from "react-bootstrap";
-import UserSelect from "./components/UserSelect";
-import TodoList from "./components/TodoList";
-import TodoForm from "./components/TodoForm";
+import UserSelect from "../components/UserSelect";
+import TodoList from "../components/TodoList";
+import TodoForm from "../components/TodoForm";
 
 function App() {
   const [showUserSelect, setShowUserSelect] = useState(false);
